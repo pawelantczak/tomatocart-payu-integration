@@ -19,8 +19,33 @@
       $this->_sort_order = MODULE_PAYMENT_PAYU_SORT_ORDER;
   
       $this->form_action_url = 'https://www.platnosci.pl/paygw/UTF/NewPayment';
-        
+      $this->form_action_url = 'http://localhost/save.php';
     }
   
+    // Select payment method
+    
+    function selection() {
+    	return array('id' => $this->_code,
+    			'module' => $this->_method_title);
+    }
+    
+    // Save transaction id
+    
+    function confirmation() {
+    	$this->_order_id = osC_Order::insert(ORDERS_STATUS_PREPARING);
+    }
+    
+    // Set variables for provider
+    
+    function process_button() {
+    	$fields = osc_draw_hidden_field('pawel', antczak);
+    
+    	return $fields;
+    }
+    
+    // Receive callback
+    
+    
+    
   }
 ?>

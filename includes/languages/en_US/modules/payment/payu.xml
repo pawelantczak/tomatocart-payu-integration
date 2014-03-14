@@ -2,18 +2,18 @@
 <language>
   <definitions>
     <definition>
-      <key>payment_amazon_title</key>
-      <value><![CDATA[Amazon IPN]]></value>
+      <key>payment_payu_title</key>
+      <value><![CDATA[PayU]]></value>
       <group>modules-payment</group>
     </definition>
     <definition>
-      <key>payment_amazon_description</key>
-      <value><![CDATA[Amazon IPN]]></value>
+      <key>payment_payu_description</key>
+      <value><![CDATA[PayU - Polish payments company]]></value>
       <group>modules-payment</group>
     </definition>
     <definition>
-      <key>payment_amazon_method_title</key>
-      <value><![CDATA[Amazon IPN]]></value>
+      <key>payment_payu_method_title</key>
+      <value><![CDATA[Pay via PayU ]]></value>
       <group>modules-payment</group>
     </definition>
   </definitions>
