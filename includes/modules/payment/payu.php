@@ -11,6 +11,8 @@ class osC_Payment_payu extends osC_Payment {
 		$this->_sort_order = MODULE_PAYMENT_PAYU_SORT_ORDER;
 		
 		$this->form_action_url = 'https://secure.payu.com/paygw/UTF/NewPayment';
+		
+		$osC_Language->load ( 'modules-payment' );
 	}
 	
 	// Select payment method
@@ -23,7 +25,7 @@ class osC_Payment_payu extends osC_Payment {
 	
 	// Save transaction id
 	function confirmation() {
-		$this->_order_id = osC_Order::insert ( ORDERS_STATUS_PREPARING );
+		$this->_order_id = osC_Order::insert ();
 	}
 	
 	// Set variables for provider
@@ -61,22 +63,22 @@ class osC_Payment_payu extends osC_Payment {
 		
 		switch ($_GET ['status']) {
 			case "error" :
-				osC_Order::process ( $_GET ['orderId'], ORDERS_STATUS_CANCELLED, $this->_getErrorMessage ( $_GET ['errorCode'] ) );
-				osC_Order::insertOrderStatusHistory ( $_GET ['orderId'], ORDERS_STATUS_CANCELLED, $this->_getErrorMessage ( $_GET ['errorCode'] ) );
-				$messageStack->add_session(FILENAME_CHECKOUT, $this->_getErrorMessage ( $_GET ['errorCode'] ), 'error');
-				osc_redirect ( osc_href_link ( FILENAME_CHECKOUT, 'error', 'SSL', true, true, true ) );
+				$error_message = $osC_Language->get ( 'payment_payu_error' ) . $this->_getErrorMessage ( $_GET ['errorCode'] );
+				osC_Order::process ( $_GET ['orderId'], ORDERS_STATUS_CANCELLED, $error_message );
+				$messageStack->add_session ( 'shopping_cart', $error_message, 'error' );
+				osc_redirect ( osc_href_link ( FILENAME_CHECKOUT, 'cart', 'SSL', null, null, true ) );
 				break;
 			case "ok" :
-				osC_Order::process ( $_GET ['orderId'], ORDERS_STATUS_PAID, 'Ok' );
-				osC_Order::insertOrderStatusHistory ( $_GET ['orderId'], ORDERS_STATUS_PAID, 'Ok' );
+				osC_Order::process ( $_GET ['orderId'], ORDERS_STATUS_PREPARING, $osC_Language->get ( 'payment_payu_initially_confirmed' ) );
 				$osC_ShoppingCart->reset ( true );
-				osc_redirect ( osc_href_link ( FILENAME_CHECKOUT, 'success', 'SSL', true, true, true ) );
-				
+				osc_redirect ( osc_href_link ( FILENAME_CHECKOUT, 'success', 'SSL' ) );
 				break;
 			case "update" :
 				echo "OK";
 				break;
 		}
+	}
+	function process() {
 	}
 	function _getErrorMessage($errorCode) {
 		if (! isset ( $this->_error_messages )) {
