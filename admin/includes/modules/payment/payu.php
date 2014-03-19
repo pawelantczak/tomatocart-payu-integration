@@ -27,7 +27,7 @@ class osC_Payment_payu extends osC_Payment_Admin {
 	 * @var string
 	 * @access private
 	 */
-	var $_author_name = 'Pawel‚ Antczak';
+	var $_author_name = 'Pawelï¿½ Antczak';
 	
 	/**
 	 * The developers address
@@ -79,12 +79,22 @@ class osC_Payment_payu extends osC_Payment_Admin {
 		
 		parent::install ();
 		
+		$actual_link = '';
+		if (ENABLE_SSL) {
+			$actual_link = HTTP_SERVER . HTTP_COOKIE_PATH;
+		} else {
+			$actual_link = HTTPS_SERVER . HTTPS_COOKIE_PATH;
+		}
+		
 		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Enable PayU Module', 'MODULE_PAYMENT_PAYU_STATUS', '-1', 'Do you want to accept PayU payments?', '6', '1', 'osc_cfg_use_get_boolean_value', 'osc_cfg_set_boolean_value(array(1, -1))', now())" );
-		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('POS ID', 'MODULE_PAYMENT_PAYU_POS_ID', '', 'POS ID given by PayU.', '6', '2', now())" );
-		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('KEY #1', 'MODULE_PAYMENT_PAYU_KEY_1', '', 'First key given by PayU.', '6', '3', now())" );
-		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('KEY #2', 'MODULE_PAYMENT_PAYU_KEY_2', '', 'Second key given by PayU.', '6', '4', now())" );
-		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('POS Authentication Key', 'MODULE_PAYMENT_PAYU_POS_AUTH_KEY', '', 'POS Authentication Key given by PayU.', '6', '5', now())" );
-		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort order of display', 'MODULE_PAYMENT_PAYU_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '6', now())" );
+		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Error URL', 'MODULE_PAYMENT_PAYU_ERROR_URL', '" . $actual_link . 'checkout.php?callback&module=payu&status=error&errorCode=%error%&orderId=%orderId%' . "', 'PayU callback error URL', '6', '2', 'osc_cfg_set_textarea_field', now())" );
+		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Success URL', 'MODULE_PAYMENT_PAYU_SUCCESS_URL', '" . $actual_link . 'checkout.php?callback&module=payu&status=ok&orderId=%orderId%' . "', 'PayU callback success URL', '6', '3', 'osc_cfg_set_textarea_field', now())" );
+		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Report URL', 'MODULE_PAYMENT_PAYU_REPORT_URL', '" . $actual_link . 'checkout.php?callback&module=payu' . "', 'PayU callback report URL', '6', '4', 'osc_cfg_set_textarea_field', now())" );
+		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('POS ID', 'MODULE_PAYMENT_PAYU_POS_ID', '', 'POS ID given by PayU.', '6', '5', now())" );
+		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('KEY #1', 'MODULE_PAYMENT_PAYU_KEY_1', '', 'First key given by PayU.', '6', '6', now())" );
+		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('KEY #2', 'MODULE_PAYMENT_PAYU_KEY_2', '', 'Second key given by PayU.', '6', '7', now())" );
+		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('POS Authentication Key', 'MODULE_PAYMENT_PAYU_POS_AUTH_KEY', '', 'POS Authentication Key given by PayU.', '6', '8', now())" );
+		$osC_Database->simpleQuery ( "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort order of display', 'MODULE_PAYMENT_PAYU_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '9', now())" );
 	}
 	
 	/**
@@ -97,6 +107,9 @@ class osC_Payment_payu extends osC_Payment_Admin {
 		if (! isset ( $this->_keys )) {
 			$this->_keys = array (
 					'MODULE_PAYMENT_PAYU_STATUS',
+					'MODULE_PAYMENT_PAYU_ERROR_URL',
+					'MODULE_PAYMENT_PAYU_SUCCESS_URL',
+					'MODULE_PAYMENT_PAYU_REPORT_URL',
 					'MODULE_PAYMENT_PAYU_POS_ID',
 					'MODULE_PAYMENT_PAYU_KEY_1',
 					'MODULE_PAYMENT_PAYU_KEY_2',
