@@ -1,30 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <language>
-	<definitions>
-		<definition>
-			<key>payment_payu_title</key>
-			<value><![CDATA[PayU]]></value>
-			<group>modules-payment</group>
-		</definition>
-		<definition>
-			<key>payment_payu_description</key>
-			<value><![CDATA[PayU - Polish payments company]]></value>
-			<group>modules-payment</group>
-		</definition>
-		<definition>
-			<key>payment_payu_method_title</key>
-			<value><![CDATA[Pay via PayU]]></value>
-			<group>modules-payment</group>
-		</definition>
-		<definition>
-			<key>payment_payu_initially_confirmed</key>
-			<value><![CDATA[PayU Payment initially confirmed]]></value>
-			<group>modules-payment</group>
-		</definition>
-		<definition>
-			<key>payment_payu_error</key>
-			<value><![CDATA[Payment error:&nbsp;]]></value>
-			<group>modules-payment</group>
-		</definition>
-	</definitions>
+    <definitions>
+        <definition>
+            <key>payment_payu_title</key>
+            <value><![CDATA[PayU]]></value>
+            <group>modules-payment</group>
+        </definition>
+        <definition>
+            <key>payment_payu_description</key>
+            <value><![CDATA[PayU - Polish payments company]]></value>
+            <group>modules-payment</group>
+        </definition>
+        <definition>
+            <key>payment_payu_method_title</key>
+            <value><![CDATA[Pay via PayU]]></value>
+            <group>modules-payment</group>
+        </definition>
+        <definition>
+            <key>payment_payu_initially_confirmed</key>
+            <value><![CDATA[PayU Payment initially confirmed]]></value>
+            <group>modules-payment</group>
+        </definition>
+        <definition>
+            <key>payment_payu_payment_status</key>
+            <value><![CDATA[Payment status: ]]></value>
+            <group>modules-payment</group>
+        </definition>
+        <definition>
+            <key>payment_payu_error</key>
+            <value><![CDATA[Payment error: ]]></value>
+            <group>modules-payment</group>
+        </definition>
+        <definition>
+            <key>payment_payu_signature_error</key>
+            <value><![CDATA[Wrong payment signature.]]></value>
+            <group>modules-payment</group>
+        </definition>
+    </definitions>
 </language>
