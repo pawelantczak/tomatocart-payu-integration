@@ -8,23 +8,23 @@
         </definition>
         <definition>
             <key>payment_payu_description</key>
-            <value><![CDATA[PayU - Polish payments company]]></value>
+            <value><![CDATA[PayU - płatności internetowe]]></value>
             <group>modules-payment</group>
         </definition>
         <definition>
             <key>payment_payu_method_title</key>
-            <value><![CDATA[Pay via PayU]]></value>
+            <value><![CDATA[Zapłać z PayU]]></value>
             <group>modules-payment</group>
         </definition>
         <definition>
             <key>payment_payu_payment_status</key>
-            <value><![CDATA[Payment status:]]></value>
+            <value><![CDATA[Status płatności:]]></value>
             <group>modules-payment</group>
         </definition>
         <definition>
             <key>payment_payu_error</key>
-            <value><![CDATA[Payment error:]]></value>
+            <value><![CDATA[Błąd płatności:]]></value>
             <group>modules-payment</group>
-        </definition>      
+        </definition>
     </definitions>
 </language>
