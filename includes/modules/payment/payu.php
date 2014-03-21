@@ -1,16 +1,18 @@
 <?php
 
+require_once 'Hashids/Hashids.php';
+
 class osC_Payment_payu extends osC_Payment {
 
-    var $_title, $_code = 'payu', $_status = false, $_sort_order, $_order_id, $_callback_url, $_new_payment, $_get_payment;
+    var $_title, $_code = 'payu', $_order_id, $_callback_url, $_new_payment, $_get_payment;
+    private $_hashids;
 
     function osC_Payment_payu() {
-        global $osC_Database, $osC_Language, $osC_ShoppingCart;
+        global $osC_Language;
 
         $this->_title = $osC_Language->get('payment_payu_title');
         $this->_method_title = $osC_Language->get('payment_payu_method_title');
         $this->_status = (MODULE_PAYMENT_PAYU_STATUS == '1') ? true : false;
-        $this->_sort_order = MODULE_PAYMENT_PAYU_SORT_ORDER;
 
         $this->_new_payment = 'NewPayment';
         $this->_get_payment = 'Payment/get';
@@ -18,9 +20,9 @@ class osC_Payment_payu extends osC_Payment {
         $this->form_action_url = $this->_callback_url . $this->_new_payment;
 
         $osC_Language->load('modules-payment');
+        $this->_hashids = new Hashids(MODULE_PAYMENT_PAYU_SALT, 32);
     }
 
-    // Select payment method
     function selection() {
         return array(
             'id' => $this->_code,
@@ -28,19 +30,17 @@ class osC_Payment_payu extends osC_Payment {
         );
     }
 
-    // Save transaction id
     function confirmation() {
         $this->_order_id = osC_Order::insert();
     }
 
-    // Set variables for provider
     function process_button() {
         global $osC_ShoppingCart, $osC_Customer;
 
         $params = array(
             'pos_id' => MODULE_PAYMENT_PAYU_POS_ID,
             'pos_auth_key' => MODULE_PAYMENT_PAYU_POS_AUTH_KEY,
-            'session_id' => md5($this->_order_id),
+            'session_id' => $this->_hashids->encrypt($this->_order_id),
             'amount' => number_format($osC_ShoppingCart->getTotal(), 2, '', ''),
             'desc' => STORE_NAME,
             'order_id' => $this->_order_id,
@@ -54,57 +54,59 @@ class osC_Payment_payu extends osC_Payment {
         foreach ($params as $key => $value) {
             $key = trim($key);
             $value = trim($value);
-            $process_button_string .= osc_draw_hidden_field($key, $value);
-            $process_button_string .= "\n";
+            $process_button_string .= osc_draw_hidden_field($key, $value) . "\n";
         }
-
         return $process_button_string;
     }
 
-    // Receive callback
-    // app.antczak.org/tomato/checkout.php?callback&module=payu&status=error&errorCode=%error%&orderId=%orderId%
     function callback() {
-        global $osC_ShoppingCart, $osC_Currencies, $osC_Language, $osC_Tax, $messageStack, $osC_Database;
-
-        $order_id = $_GET['order_id'];
-
-        file_put_contents("curl2.txt", print_r($_REQUEST, true), FILE_APPEND);
+        global $osC_ShoppingCart, $osC_Language, $messageStack;
 
         switch ($_GET ['action']) {
-
             case "error" :
+                $order_id = $_GET['order_id'];
                 $error_code = $_GET['error_code'];
-
-                $error_message = $osC_Language->get('payment_payu_error') . $this->_getErrorMessage($error_code);
+                $error_message = $osC_Language->get('payment_payu_error') . ' ' . $this->_getErrorMessage($error_code);
                 osC_Order::process($order_id, ORDERS_STATUS_CANCELLED, $error_message);
                 $messageStack->add_session('shopping_cart', $error_message, 'error');
 
                 osc_redirect(osc_href_link(FILENAME_CHECKOUT, 'cart', 'SSL', null, null, true));
 
                 break;
-
             case "ok" :
-                osC_Order::process($order_id, ORDERS_STATUS_PROCESSING, $osC_Language->get('payment_payu_initially_confirmed'));
+                $order_id = $_GET['order_id'];
                 $osC_ShoppingCart->reset(true);
 
                 osc_redirect(osc_href_link(FILENAME_CHECKOUT, 'success', 'SSL'));
 
                 break;
-
             case "update" :
-                $session_id = md5($_GET['order_id']);
+                $session_id = $_POST['session_id'];
+                $order_id = $this->_hashids->decrypt($session_id);
+                $order_id = $order_id[0];
 
                 $response = $this->_getTransactionDetails($session_id);
 
-                $transaction_status = $response['trans']['status'];
-                $transaction_desc = $osC_Language->get('payment_payu_payment_status') . $this->_getTransactionStatus($transaction_status);
+                if ($response['status'] == 'OK') {
 
-                file_put_contents("curl.txt", print_r($response, true) . "\n" . $transaction_status . "\n" . $transaction_desc);
+                    $transaction_status = $response['trans']['status'];
+                    $transaction_desc = $osC_Language->get('payment_payu_payment_status') . ' ' . $this->_getTransactionStatus($transaction_status);
 
-                if ($transaction_status == 99) {
-                    osC_Order::process($order_id, ORDERS_STATUS_PAID, $transaction_desc);
-                } else {
-                    osC_Order::process($order_id, osC_Order::getStatusID($order_id), $transaction_desc);
+                    switch ($transaction_status) {
+                        case 99:
+                            osC_Order::process($order_id, ORDERS_STATUS_PAID, $transaction_desc);
+                            break;
+                        case 1:
+                        case 4:
+                        case 5:
+                            osC_Order::process($order_id, ORDERS_STATUS_PROCESSING, $transaction_desc);
+                            break;
+                        case 2:
+                        case 3:
+                        case 7:
+                        case 888:
+                            osC_Order::process($order_id, ORDERS_STATUS_CANCELLED, $transaction_desc);
+                    }
                 }
 
                 echo "OK";
@@ -138,7 +140,7 @@ class osC_Payment_payu extends osC_Payment {
 
         $ch = curl_init($this->_callback_url . $this->_get_payment);
 
-        $seterror = curl_setopt_array($ch, $options);
+        curl_setopt_array($ch, $options);
 
         $content = curl_exec($ch);
 
