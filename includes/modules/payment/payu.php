@@ -5,7 +5,6 @@ require_once 'Hashids/Hashids.php';
 class osC_Payment_payu extends osC_Payment {
 
     var $_title, $_code = 'payu', $_order_id, $_callback_url, $_new_payment, $_get_payment;
-    private $_hashids;
 
     function osC_Payment_payu() {
         global $osC_Language;
@@ -20,7 +19,6 @@ class osC_Payment_payu extends osC_Payment {
         $this->form_action_url = $this->_callback_url . $this->_new_payment;
 
         $osC_Language->load('modules-payment');
-        $this->_hashids = new Hashids(MODULE_PAYMENT_PAYU_SALT, 32);
     }
 
     function selection() {
@@ -40,7 +38,7 @@ class osC_Payment_payu extends osC_Payment {
         $params = array(
             'pos_id' => MODULE_PAYMENT_PAYU_POS_ID,
             'pos_auth_key' => MODULE_PAYMENT_PAYU_POS_AUTH_KEY,
-            'session_id' => $this->_hashids->encrypt($this->_order_id),
+            'session_id' => base64_encode($this->_order_id),
             'amount' => number_format($osC_ShoppingCart->getTotal(), 2, '', ''),
             'desc' => STORE_NAME,
             'order_id' => $this->_order_id,
@@ -82,7 +80,7 @@ class osC_Payment_payu extends osC_Payment {
                 break;
             case "update" :
                 $session_id = $_POST['session_id'];
-                $order_id = $this->_hashids->decrypt($session_id);
+                $order_id = base64_decode($session_id);
                 $order_id = $order_id[0];
 
                 $response = $this->_getTransactionDetails($session_id);

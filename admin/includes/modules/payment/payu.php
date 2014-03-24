@@ -95,7 +95,6 @@ class osC_Payment_payu extends osC_Payment_Admin {
         $osC_Database->simpleQuery("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('KEY #2', 'MODULE_PAYMENT_PAYU_KEY_2', '', 'Second key given by PayU.', '6', '7', now())");
         $osC_Database->simpleQuery("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('POS Authentication Key', 'MODULE_PAYMENT_PAYU_POS_AUTH_KEY', '', 'POS Authentication Key given by PayU.', '6', '8', now())");
         $osC_Database->simpleQuery("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort order of display', 'MODULE_PAYMENT_PAYU_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '9', now())");
-        $osC_Database->simpleQuery("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Salt (cryptography)', 'MODULE_PAYMENT_PAYU_SALT', '" . md5(time()) . "', 'Don\'t change this value, unless you know what you are doing.', '6', '8', now())");
     }
 
     /**
@@ -115,8 +114,7 @@ class osC_Payment_payu extends osC_Payment_Admin {
                 'MODULE_PAYMENT_PAYU_KEY_1',
                 'MODULE_PAYMENT_PAYU_KEY_2',
                 'MODULE_PAYMENT_PAYU_POS_AUTH_KEY',
-                'MODULE_PAYMENT_PAYU_SORT_ORDER',
-                'MODULE_PAYMENT_PAYU_SALT'
+                'MODULE_PAYMENT_PAYU_SORT_ORDER'
             );
         }
 
